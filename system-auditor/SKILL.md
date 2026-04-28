@@ -125,6 +125,39 @@ Audit all six dimensions yourself in order. Load both reference files before sta
 
 ---
 
+## Apply Mode
+
+Triggered by the orchestrator after user approves specific `[S-NN]` issue IDs at the Findings Gate.
+
+**Inputs received:** approved `[S-NN]` IDs + original system description.
+
+**Rules:**
+- Generate **actionable implementation steps** only — not re-statements of the problem.
+- The **first step of every item must be immediately executable** (a command, config change, specific code pattern, or concrete decision).
+- Do not introduce new recommendations beyond the approved IDs.
+- If an approved fix depends on missing context, state a one-line prerequisite note and provide best available guidance.
+
+**Output format:**
+
+```
+── APPLY: Architecture ─────────────────────────────────────────
+
+[S-01] <short title>
+  1. <immediately executable first step>
+  2. <next concrete step>
+  3. <optional: validation / rollback note>
+
+[S-02] <short title>
+  1. ...
+
+── PREREQUISITES (if any) ──────────────────────────────────────
+[S-NN] <information needed before this step can be executed>
+```
+
+Omit PREREQUISITES if none. Steps must be specific enough that an engineer can start without a follow-up question.
+
+---
+
 ## Pre-Audit: Scope Inventory
 
 1. **Present:** services, data stores, message buses, external APIs, deployment targets, team structure hints

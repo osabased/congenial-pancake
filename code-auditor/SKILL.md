@@ -15,8 +15,43 @@ Read **Modes of Operation** first, then follow that mode's workflow.
 |---|---|---|
 | **Standalone Audit** | User provides code and asks for review, critique, audit, bugs, refactor, or improvement | Structured remediation report; no rewrite |
 | **Self-Audit** | You just generated non-trivial code (>20 lines, meaningful logic) | Audit your draft, fix all issues, present improved code + fix summary |
+| **Apply** | Orchestrator delegates approved issue IDs post-gate | Fixed code block + per-issue change summary |
 
 Simple one-liners, boilerplate stubs, and illustrative pseudocode do not need Self-Audit. Standalone Audit supports parallel subagent fan-out; Self-Audit is sequential (draft → critique → fix) and must not use subagents.
+
+---
+
+## Apply Mode
+
+Triggered by the orchestrator after user approves specific issue IDs at the Findings Gate.
+
+**Inputs received:** original code (verbatim) + list of approved issue IDs with their descriptions.
+
+**Rules:**
+- Fix **only** the approved issues. Do not introduce new changes, refactors, or style improvements.
+- Maintain all interface signatures, exported names, and public API contracts.
+- If fixing one approved issue requires touching code adjacent to another approved issue, batch the edits cleanly — do not leave inconsistent state.
+- If an approved fix is impossible without breaking a contract, output a one-line blocker note for that ID and skip it.
+
+**Output format:**
+
+```
+── APPLY: <filename> ───────────────────────────────────────────
+
+```<language>
+[complete fixed file content]
+```
+
+── CHANGES ─────────────────────────────────────────────────────
+[C-01] <one-line description of what changed and where>
+[C-02] <one-line description>
+[X-01] <one-line description>
+
+── BLOCKERS (if any) ───────────────────────────────────────────
+[C-NN] <reason fix cannot be applied without breaking contract>
+```
+
+Omit the BLOCKERS section if there are none. Do not repeat issue descriptions from the audit — the change summary is a log of *what was done*, not a re-statement of the problem.
 
 ---
 

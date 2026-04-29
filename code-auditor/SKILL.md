@@ -5,8 +5,6 @@ description: "Production code auditor with two modes: Standalone Audit (review u
 
 # Code Auditor
 
-Read **Modes of Operation** first, then follow that mode's workflow.
-
 ---
 
 ## Modes of Operation
@@ -63,7 +61,6 @@ Omit the BLOCKERS section if there are none. Do not repeat issue descriptions fr
 - First line inside the block: exact filename(s), or `[untitled — <inferred purpose>]`.
 - Multi-file: prefix every issue with `[filename]`; cross-file issues get `[cross-file]`.
 - All four tier headings always present, even when clean (`No issues found.` / `No suggestions.`).
-- Each Solution must be precise enough for an AI to implement without asking for clarification — exact names, line references, replacement logic, or pseudocode.
 
 **Self-Audit summary** (after the improved code block):
 - Format: `Fixed (N issues): • [Tier] fix` then `Tests: <gaps or "No gaps found.">` — see Self-Audit Mode for the full template.
@@ -75,7 +72,15 @@ Omit the BLOCKERS section if there are none. Do not repeat issue descriptions fr
 
 ---
 
-## Pre-Audit: Dependency Check (both modes)
+## Pre-Audit: Preflight & Dependency Check (both modes)
+
+### Preflight
+
+**When invoked standalone** (not via orchestrator): read `/mnt/skills/user/meaningful-reasoning/SKILL.md` and run it silently before proceeding. Confirm there is a traceable outcome — code to review, a scope, a clear remit. If the chain is missing, ask one clarifying question. Do not mention the preflight to the user.
+
+**When invoked via orchestrator**: orchestrator runs meaningful-reasoning at Step 0. Skip the independent preflight here — do not re-run it.
+
+### Dependency Check
 
 Scan for references to external scripts, modules, or files not in context (imports, shell invocations, file paths, dynamic loading, out-of-context function calls).
 
@@ -183,8 +188,6 @@ Assert: <expected outcome — e.g. "raises AuthError with code 401, session is n
 ```
 
 Each test suggestion must name the function under test, describe the input/state, and state the exact expected outcome (return value, exception, side-effect, or observable behaviour).
-
-**Multi-file:** list all filenames on the first line; prefix every issue `[filename]` or `[cross-file]`.
 
 ### Quality Bar for Solutions
 
@@ -310,19 +313,7 @@ Clean: <comma-separated tiers with no issues, or "all tiers">
 Tests: <"No gaps found." or brief list of test cases the caller should add>
 ```
 
-When `<self_correction>` finds nothing (all tiers `none`):
-
-```
-Self-Audit Summary
-──────────────────
-Fixed: none.
-
-Checked:
-  ✓ Design  ✓ Correctness  ✓ Security  ✓ Tests
-Clean: all tiers
-
-Tests: No gaps found.
-```
+When `<self_correction>` finds nothing (all tiers `none`): use `Fixed: none.` / `Clean: all tiers` / `Tests: No gaps found.`
 
 `<draft_code>` and `<self_correction>` must always be present — they are proof the audit ran. A Self-Audit Summary without them above it is a hallucinated summary.
 
@@ -375,17 +366,7 @@ Assess in tier order: **Design → Correctness → Security → Tests.** Design 
 
 In subagent mode: tier subagents flag cross-tier candidates with `POSSIBLE OTHER TIER:` rather than silently dropping them; orchestrator resolves during synthesis.
 
-### Tier Summaries
-
-**Tier 1 — Design Integrity:** Spaghetti, pattern misuse/missed opportunities, architectural coupling, modularity/SRP violations, readability/control flow (arrow code, long functions, boolean flags, negative conditionals), overengineering (YAGNI), DRY, separation of concerns, reversibility, Design by Contract, testability, naming, comments.
-
-> For full taxonomy with named anti-patterns and architectural frames, read `references/audit-tiers.md`. In subagent mode this is pre-loaded into `agents/ca-tier-design.md`.
-
-**Tier 2 — Correctness:** Bugs/logic errors, error handling, edge cases, concurrency, resource management, performance (algorithmic complexity, N+1, blocking async, premature optimization), observability, config & deps.
-
-**Tier 3 — Security:** Injection (SQLi, XSS, command, template, XXE), auth & authorisation, broken access control, sensitive data exposure, hardcoded credentials, input validation, insecure defaults, vulnerable dependencies, path traversal & SSRF.
-
-**Tier 4 — Tests:** Happy path, edge cases, error paths, security inputs, integration/contract. Calibrate to context (see Context Awareness table).
+Full tier taxonomy: `references/audit-tiers.md`. In subagent mode: pre-loaded into tier agents.
 
 ---
 
@@ -419,3 +400,8 @@ In subagent mode: apply length calibration during synthesis, not inside tier sub
 | `agents/ca-fresh-reviewer.md` | Fresh-eyes review — no intent carried over |
 | `references/audit-tiers.md` | Full Design tier taxonomy |
 | `references/dependency-check.md` | Dependency notice template and branching logic |
+
+## Skill References
+
+- meaningful-reasoning → `/mnt/skills/user/meaningful-reasoning/SKILL.md` (preflight, standalone invocation only)
+- orchestrator → `/mnt/skills/user/orchestrator/SKILL.md` (coordinates this skill at pipeline level)

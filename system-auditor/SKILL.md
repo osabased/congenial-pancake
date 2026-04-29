@@ -158,7 +158,15 @@ Omit PREREQUISITES if none. Steps must be specific enough that an engineer can s
 
 ---
 
-## Pre-Audit: Scope Inventory
+## Pre-Audit: Preflight & Scope Inventory
+
+### Preflight
+
+**When invoked standalone** (not via orchestrator): read `/mnt/skills/user/meaningful-reasoning/SKILL.md` and run it silently. Confirm the system description is sufficient to trace a causal chain — is the scope clear? Is there a real architectural question to answer? If the chain is missing, ask one clarifying question before proceeding. Do not explain the preflight to the user.
+
+**When invoked via orchestrator**: orchestrator runs meaningful-reasoning at Step 0. Skip the independent preflight here — do not re-run it.
+
+### Scope Inventory
 
 1. **Present:** services, data stores, message buses, external APIs, deployment targets, team structure hints
 2. **Absent:** flag missing critical dimensions as *visibility gaps* — not assumed problems
@@ -176,6 +184,8 @@ Omit PREREQUISITES if none. Steps must be specific enough that an engineer can s
 | **Internal tooling** | Integration correctness and maintainability. Skip speculative load-scale concerns. |
 
 State assumed context in one sentence before the report block if not explicit.
+
+**Large systems:** describe in a fresh conversation without implementation context for highest-fidelity review — carrying a long conversation into system-auditor degrades signal quality.
 
 ---
 
@@ -352,17 +362,14 @@ In subagent mode, subagents flag conflicts with `POSSIBLE CROSS-DIMENSION:` — 
 
 ---
 
-## Complementary Audit Guidance
-
-- **Post-audit:** run code-auditor on individual services for implementation-level correctness
-- **Greenfield:** Design Review mode before building — far cheaper than post-hoc refactors
-- **Large systems:** describe in a fresh conversation without implementation context for highest-fidelity review
-
----
-
 ## Reference Files
 
 - `references/patterns.md` — Named architectural patterns with when-to-use/avoid (strangler fig, saga, CQRS, outbox, BFF, anti-corruption layer, sidecar, etc.)
 - `references/technology-fit.md` — Fitness criteria for common technology choices (queues, caches, databases, service meshes, API gateways)
+
+## Skill References
+
+- meaningful-reasoning → `/mnt/skills/user/meaningful-reasoning/SKILL.md` (preflight, standalone invocation only)
+- orchestrator → `/mnt/skills/user/orchestrator/SKILL.md` (coordinates this skill at pipeline level)
 
 In subagent mode: loaded by Ref-Patterns and Ref-TechFit subagents in Step 1. In sequential mode: load both before starting.

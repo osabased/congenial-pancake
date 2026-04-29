@@ -1,12 +1,11 @@
 ---
 name: orchestrator
 description: >
-  Master orchestrator for code and architecture auditing — coordinates 'code-auditor',
-  'system-auditor', and 'caveman' into a lean 5-step pipeline: run audits → present
-  high-level findings → wait for user approval → apply changes → brief final summary.
-  Trigger on any audit, review, bug-find, remediation, or refactor request involving
-  code or architecture, especially multi-file projects; prefer this over calling
-  sub-skills directly.
+  Master orchestrator for code and architecture auditing — coordinates 'meaningful-reasoning',
+  'code-auditor', 'system-auditor', and 'caveman' into a lean 5-step pipeline: preflight →
+  run audits → findings gate → apply changes → brief final summary. Trigger on any audit, review, bug-find, remediation, or refactor
+  request involving code or architecture, especially multi-file projects; prefer this over
+  calling sub-skills directly.
 ---
 
 # Orchestrator
@@ -21,11 +20,11 @@ and agent→orchestrator summaries in wenyan-ultra. Translate to English for use
 ## Pipeline Overview
 
 ```
-[1] Run Audits  →  [2] Findings Gate  →  [3] Approval  →  [4] Apply  →  [5] Summary
+[0] Preflight  →  [1] Run Audits  →  [2] Findings Gate (await approval)  →  [3] Apply  →  [4] Summary
 ```
 
-Steps 1–2 always complete before pausing for user input.  
-Steps 4–5 execute only after explicit approval.
+Steps 0–2 always complete before pausing for user input.  
+Steps 3–4 execute only after explicit approval.
 
 ---
 
@@ -49,11 +48,25 @@ Legend: **⚡** = Fast-path · **S** = Standard · **D** = Deep
 **Check Constraint-Aware Routing before finalising mode** — user constraints override.
 
 **⚡ Fast-path:** emit one `<wc>` mode decision, call the relevant sub-skill directly.  
-Pass through the sub-skill's output unchanged. **Do NOT use the 5-step pipeline for ⚡.**
+Pass through the sub-skill's output unchanged. **Do NOT use the 6-step pipeline for ⚡.**
 
 ```
 <wc>⚡：單函數9行→代碼審官快徑。</wc>
 ```
+
+---
+
+## Step 0 — Preflight
+
+Read `/mnt/skills/user/meaningful-reasoning/SKILL.md` and run it silently.
+
+Apply the Causal Chain: does this audit request have a traceable outcome? Is the scope well-formed — code to review, a system to evaluate, a clear remit? Are there hidden proxy goals the audit might not serve?
+
+If the chain is missing, ask **one** clarifying question before spawning any agents. Do not explain the preflight framework to the user.
+
+**For ⚡ Fast-path:** run meaningful-reasoning inline — do not spawn as a subagent. Complete the preflight, then proceed directly to the relevant sub-skill.
+
+**When invoked via orchestrator**, meaningful-reasoning runs once at the pipeline level — code-auditor and system-auditor do not re-run it independently.
 
 ---
 
@@ -154,7 +167,7 @@ Approve:
   • "cancel"          — stop here
 ```
 
-**Wait for explicit user response before Step 4.**
+**Wait for explicit user response before Step 3.**
 
 - `proceed` → apply all items
 - `skip [ID]` → remove those items; re-show the gate
@@ -162,15 +175,11 @@ Approve:
 - `details` → output full ORCHESTRATION REPORT (see Reference Format), then re-show the gate
 - `cancel` → stop; do not apply anything
 
----
-
-## Step 3 — (Hold for Approval)
-
-Do not output anything until the user responds to the Findings Gate.
+**Do not output anything until the user responds.**
 
 ---
 
-## Step 4 — Apply Changes
+## Step 3 — Apply Changes
 
 For each approved item, delegate to the appropriate sub-skill in **Apply Mode**.
 
@@ -206,7 +215,7 @@ Present results as they arrive — do not wait for both to complete.
 
 ---
 
-## Step 5 — Brief Final Summary
+## Step 4 — Brief Final Summary
 
 After all apply calls complete:
 
@@ -403,18 +412,10 @@ Omit empty sections. Issue IDs must match those in the Findings Gate.
 
 ---
 
-## Token Efficiency
-
-- Agents communicate in wenyan-ultra (~80–90% token reduction)
-- Orchestrator translates ONCE at output time
-- Synthesis in orchestrator context only
-- No agent gets context it doesn't need
-
----
-
 ## Startup Checklist
 
 1. Confirm sub-skill files accessible:
+   - `/mnt/skills/user/meaningful-reasoning/SKILL.md`
    - `/mnt/skills/user/code-auditor/SKILL.md`
    - `/mnt/skills/user/system-auditor/SKILL.md`
    - `/mnt/skills/user/caveman/SKILL.md` (D mode output)
@@ -427,6 +428,7 @@ Omit empty sections. Issue IDs must match those in the Findings Gate.
 
 ## Reference
 
+- meaningful-reasoning → `/mnt/skills/user/meaningful-reasoning/SKILL.md`
 - code-auditor → `/mnt/skills/user/code-auditor/SKILL.md`
 - system-auditor → `/mnt/skills/user/system-auditor/SKILL.md`
 - wenyan-ultra → `/mnt/skills/user/caveman/SKILL.md`

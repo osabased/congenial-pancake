@@ -72,3 +72,17 @@ Re-run the preflight on the answer.
 ---
 
 The goal is not minimalism — it is *meaningfulness*. Complexity is allowed when it is earned, not assumed.
+
+---
+
+## Integration
+
+This skill is invoked as a silent preflight by the following skills in this repo:
+
+| Skill | When |
+|---|---|
+| `orchestrator` | Step 0, before spawning any audit agents — runs once for the full pipeline |
+| `code-auditor` | Pre-Audit, when invoked standalone (not via orchestrator) |
+| `system-auditor` | Pre-Audit, when invoked standalone (not via orchestrator) |
+
+**De-duplication rule:** when orchestrator is the entry point, it runs meaningful-reasoning at Step 0 on behalf of the whole pipeline. Sub-skills (code-auditor, system-auditor) must not re-run it — doing so wastes tokens and dilutes the single causal chain established at the top level.

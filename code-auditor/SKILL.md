@@ -33,7 +33,7 @@ Triggered by the orchestrator after user approves specific issue IDs at the Find
 
 **Output format:**
 
-```
+````
 ── APPLY: <filename> ───────────────────────────────────────────
 
 ```<language>
@@ -47,7 +47,7 @@ Triggered by the orchestrator after user approves specific issue IDs at the Find
 
 ── BLOCKERS (if any) ───────────────────────────────────────────
 [C-NN] <reason fix cannot be applied without breaking contract>
-```
+````
 
 Omit the BLOCKERS section if there are none. Do not repeat issue descriptions from the audit — the change summary is a log of *what was done*, not a re-statement of the problem.
 
@@ -273,7 +273,7 @@ Output the final improved code in a standard markdown code block, then the Self-
 
 ### Self-Audit Output Format
 
-```
+````
 <draft_code>
 [initial implementation]
 </draft_code>
@@ -311,7 +311,7 @@ Checked:
 Clean: <comma-separated tiers with no issues, or "all tiers">
 
 Tests: <"No gaps found." or brief list of test cases the caller should add>
-```
+````
 
 When `<self_correction>` finds nothing (all tiers `none`): use `Fixed: none.` / `Clean: all tiers` / `Tests: No gaps found.`
 
